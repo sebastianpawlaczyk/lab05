@@ -1,5 +1,7 @@
 package car;
 
+import exception.FuelException;
+import exception.TripException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +22,7 @@ class MyCarTests
     }
 
     @Test
-    public void createCarWithStringValue()
+    public void createCarWithStringValue() throws Exception
     {
         MyCar myCar = new MyCar("50;5   bmw");
         //0
@@ -33,16 +35,22 @@ class MyCarTests
     }
 
     @Test
-    public void createCarWithWrongStringAndSetDefaultValues()
+    public void createCarWithWrongStringAndThrowException()
     {
-        MyCar myCar = new MyCar("fsaf;5  3 fasfa");
+        boolean isThrowException = false;
+        try {
+            MyCar myCar = new MyCar("fsaf;5  3 fasfa");
+        }
+        catch (Exception e)
+        {
+            isThrowException = true;
+        }
 
-        // default values -> maker = OTHER, tankCapacity = 40, fuelConsumption = 8
-        Assertions.assertEquals(myCar.toString(), "Other tankCapacity 40.0 fuelConsumption 8.0");
+        Assertions.assertTrue(isThrowException);
     }
 
     @Test
-    public void tryToTankToMuchFuelAndSetFuelLevelToTankCapacity()
+    public void tryToTankToMuchFuelAndSetFuelLevelToTankCapacity() throws Exception
     {
         MyCar myCar = new MyCar("50;5   bmw");
         myCar.tankIt(100);
@@ -51,18 +59,18 @@ class MyCarTests
     }
 
     @Test
-    public void tryToTankFuelSmallerThanZeroAndThrowException()
+    public void tryToTankFuelSmallerThanZeroAndThrowException() throws Exception
     {
         MyCar myCar = new MyCar("50;5   bmw");
 
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(FuelException.class,
                 ()->{
                     myCar.tankIt(-33);
                 });
     }
 
     @Test
-    public void tankProperValue()
+    public void tankProperValue() throws Exception
     {
         MyCar myCar = new MyCar("50;5   bmw");
         myCar.tankIt(34);
@@ -71,7 +79,7 @@ class MyCarTests
     }
 
     @Test
-    public void startTripWithEnoughFuelAndUpdateValues()
+    public void startTripWithEnoughFuelAndUpdateValues() throws Exception
     {
         MyCar myCar = new MyCar("50;5   bmw");
         myCar.tankIt(50);
@@ -84,23 +92,23 @@ class MyCarTests
     }
 
     @Test
-    public void startTripWithoutEnoughFuel()
+    public void startTripWithoutEnoughFuelAndThrowException() throws Exception
     {
         MyCar myCar = new MyCar("50;5   bmw");
         myCar.tankIt(2);
-        myCar.startTrip(100);
 
-        Assertions.assertEquals(myCar.getFuelLevel(), 2);
-        Assertions.assertEquals(myCar.getLastTripDistance(), 0);
-        Assertions.assertEquals(myCar.getMilage(), 0);
+        Assertions.assertThrows(TripException.class,
+                ()->{
+                    myCar.startTrip(100);
+                });
     }
 
     @Test
-    public void startTripWithSmallerThanZeroAndThrowException()
+    public void startTripWithSmallerThanZeroAndThrowException() throws Exception
     {
         MyCar myCar = new MyCar("50;5   bmw");
 
-        Assertions.assertThrows(IllegalArgumentException.class,
+        Assertions.assertThrows(TripException.class,
                 ()->{
                     myCar.startTrip(-33);
                 });

@@ -1,5 +1,10 @@
 package car;
 
+import exception.FuelException;
+import exception.MyCarWrongFormatException;
+import exception.TankCapacityException;
+import exception.TripException;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,40 +48,37 @@ public class MyCar
 
     }
 
-    public MyCar(String s)
+    public MyCar(String s) throws Exception
     {
         s = s.trim();
         s = s.toLowerCase();
-        Pattern pattern = Pattern.compile("(\\d+)(;|\t|\\,|\\s+)(\\d+)(;|\t|\\,|\\s+)(\\w+)");
+        s = s.replaceAll(",",".");
+        Pattern pattern = Pattern.compile("(\\d+|\\d+\\.\\d+)(;|\t|\\,|\\s+)(\\d+|\\d+\\.\\d+)(;|\t|\\,|\\s+)(\\w+)");
         Matcher matcher = pattern.matcher(s);
-
-        setDefaultTankCapacity();
-        setDefaultFuelConsumption();
-        setDefaultMaker();
-        setDefaultMembers();
 
         if (!matcher.matches())
         {
-            System.out.println("Wrong input, set default values");
-            return;
+            throw new MyCarWrongFormatException("Format of argument in the constructor is incorrect");
         }
 
-        int tankCapacity = Integer.parseInt(matcher.group(1));
-        if (tankCapacity >= 20 && tankCapacity <= 80)
+        double tankCapacity = Double.parseDouble(matcher.group(1));
+        if (!(tankCapacity >= 20 && tankCapacity <= 80))
         {
-            tankCapacity_ = tankCapacity;
+            throw new TankCapacityException("Tank capacity is not in the range");
         }
 
-        int fuelConsumption = Integer.parseInt(matcher.group(3));
-        if (fuelConsumption >= 3 && fuelConsumption <= 20)
+        double fuelConsumption = Double.parseDouble(matcher.group(3));
+        if (!(fuelConsumption >= 3 && fuelConsumption <= 20))
         {
-            fuelConsumption_ = fuelConsumption;
+            throw new FuelException("FuelConsumption is not in the range");
         }
 
+        fuelConsumption_ = fuelConsumption;
+        tankCapacity_ = tankCapacity;
         maker_ = CarMakers.convertString(matcher.group(5));
     }
 
-    public void tankIt(double howMuch)
+    public void tankIt(double howMuch) throws Exception
     {
         if (howMuch + fuel_ > tankCapacity_)
         {
@@ -86,27 +88,22 @@ public class MyCar
 
         if (howMuch < 0)
         {
-            throw new IllegalArgumentException("Error fuel can not be < 0 ");
-            //System.out.println("Error fuel can not be < 0");
-            //return;
+            throw new FuelException("fuel can not be < 0");
         }
 
         fuel_ = fuel_ + howMuch;
     }
 
-    public void startTrip(double tripDistance)
+    public void startTrip(double tripDistance) throws Exception
     {
         if ((fuelConsumption_ * tripDistance / 100) > fuel_)
         {
-            System.out.println("Not enough fuel in the tank!!!");
-            return;
+            throw new TripException("Not enough fuel in the tank to start trip");
         }
 
         if (tripDistance < 0)
         {
-            throw new IllegalArgumentException("Error fuel can not be < 0 ");
-            //System.out.println("Error tripDistance can not be < 0");
-            //return;
+            throw new TripException("Trip distance can not be < 0");
         }
 
         milage_ = milage_ + tripDistance;
@@ -134,5 +131,10 @@ public class MyCar
     {
         return CarMakers.getString(maker_) + " tankCapacity " + String.valueOf(tankCapacity_)
                 + " fuelConsumption " + String.valueOf(fuelConsumption_);
+    }
+
+    public static void main(String args[]) throws Exception
+    {
+        MyCar myCar = new MyCar("40,7 8,7 ford");
     }
 }
