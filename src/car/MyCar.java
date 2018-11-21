@@ -61,20 +61,23 @@ public class MyCar
             throw new MyCarWrongFormatException("Format of argument in the constructor is incorrect");
         }
 
-        double tankCapacity = Double.parseDouble(matcher.group(1));
-        if (!(tankCapacity >= 20 && tankCapacity <= 80))
+        try {
+            tankCapacity_ = Double.parseDouble(matcher.group(1));
+            fuelConsumption_ = Double.parseDouble(matcher.group(3));
+        }catch (Exception e) {
+            throw new Exception();
+        }
+
+        if (!(tankCapacity_ >= 20 && tankCapacity_ <= 80))
         {
             throw new TankCapacityException("Tank capacity is not in the range");
         }
 
-        double fuelConsumption = Double.parseDouble(matcher.group(3));
-        if (!(fuelConsumption >= 3 && fuelConsumption <= 20))
+        if (!(fuelConsumption_ >= 3 && fuelConsumption_ <= 20))
         {
             throw new FuelException("FuelConsumption is not in the range");
         }
 
-        fuelConsumption_ = fuelConsumption;
-        tankCapacity_ = tankCapacity;
         maker_ = CarMakers.convertString(matcher.group(5));
     }
 
